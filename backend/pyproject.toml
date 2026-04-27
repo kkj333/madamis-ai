@@ -1,0 +1,20 @@
+[project]
+name = "yume-uranai"
+version = "0.1.0"
+description = "夢占いAIエージェント バックエンド"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "google-adk>=1.31.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "python-dotenv>=1.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.0.3",
+    "ruff>=0.15.11",
+    "ty>=0.0.31",
+]

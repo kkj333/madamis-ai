@@ -1,0 +1,33 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+    depends_on:
+      - backend
+
+  interface:
+    build:
+      context: ./interface
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      - API_BASE_URL=http://backend:8000
+    depends_on:
+      - backend

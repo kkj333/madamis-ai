@@ -1,0 +1,19 @@
+[project]
+name = "yume-uranai-interface"
+version = "0.1.0"
+description = "夢占いAIエージェント Discord Bot"
+requires-python = ">=3.12"
+dependencies = [
+    "discord.py>=2.3.2",
+    "httpx>=0.27.0",
+    "python-dotenv>=1.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.3.0",
+    "respx>=0.23.1",
+    "ruff>=0.15.11",
+    "ty>=0.0.31",
+]

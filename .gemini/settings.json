@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "AfterAgent": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "name": "project-quality-check",
+            "type": "command",
+            "command": ".gemini/hooks/check.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
