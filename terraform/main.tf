@@ -19,8 +19,8 @@ resource "google_project_service" "services" {
 # Artifact Registry リポジトリ
 resource "google_artifact_registry_repository" "repo" {
   location      = var.region
-  repository_id = "yume-uranai"
-  description   = "Docker repository for Yume Uranai"
+  repository_id = "madamis-ai"
+  description   = "Docker images for madamis-ai"
   format        = "DOCKER"
   depends_on    = [google_project_service.services]
 }
@@ -54,8 +54,8 @@ resource "google_secret_manager_secret_version" "discord_bot_token" {
 
 # --- Service Account for Cloud Run & GCE ---
 resource "google_service_account" "app_sa" {
-  account_id   = "yume-uranai-sa"
-  display_name = "Service Account for Yume Uranai app"
+  account_id   = "madamis-ai-sa"
+  display_name = "madamis-ai application"
 }
 
 # 権限付与: Artifact Registry からイメージを取得
@@ -80,7 +80,7 @@ resource "google_secret_manager_secret_iam_member" "bot_token_accessor" {
 
 # --- Cloud Run (Backend) ---
 resource "google_cloud_run_v2_service" "backend" {
-  name     = "yume-uranai-backend"
+  name     = "madamis-backend"
   location = var.region
   ingress  = "INGRESS_TRAFFIC_ALL"
 
@@ -115,7 +115,7 @@ resource "google_cloud_run_v2_service_iam_member" "backend_public" {
 
 # --- Cloud Run (Frontend) ---
 resource "google_cloud_run_v2_service" "frontend" {
-  name     = "yume-uranai-frontend"
+  name     = "madamis-frontend"
   location = var.region
   ingress  = "INGRESS_TRAFFIC_ALL"
 
@@ -143,7 +143,7 @@ resource "google_cloud_run_v2_service_iam_member" "frontend_public" {
 
 # --- Compute Engine (Discord Bot Interface) ---
 resource "google_compute_instance" "interface" {
-  name         = "yume-uranai-interface"
+  name         = "madamis-interface"
   machine_type = "e2-micro"
   zone         = "${var.region}-a"
 

@@ -1,8 +1,7 @@
 import pytest
 import respx
 import httpx
-# src/yume_uranai_interface/interface.py から AdkApiProvider をインポート
-from yume_uranai_interface.interface import AdkApiProvider
+from madamis_interface.interface import AdkApiProvider
 
 @pytest.mark.asyncio
 async def test_interpret_success():
@@ -16,7 +15,7 @@ async def test_interpret_success():
             return_value=httpx.Response(200, json={"reply": "テストの結果です。"})
         )
         
-        reply = await provider.interpret("夢を見た", "user123")
+        reply = await provider.interpret("マダミス初心者です", "user123")
         assert reply == "テストの結果です。"
 
 @pytest.mark.asyncio
@@ -30,8 +29,8 @@ async def test_interpret_api_error():
             return_value=httpx.Response(500, text="Internal Server Error")
         )
         
-        reply = await provider.interpret("夢を見た", "user123")
-        assert reply == "APIサーバーエラーが発生しました。"
+        reply = await provider.interpret("マダミス初心者です", "user123")
+        assert reply == "API サーバーエラーが発生しました。"
 
 @pytest.mark.asyncio
 async def test_interpret_network_error():
@@ -44,5 +43,5 @@ async def test_interpret_network_error():
             side_effect=httpx.ConnectError("Connection failed")
         )
         
-        reply = await provider.interpret("夢を見た", "user123")
-        assert reply == "夢見師へ繋ぐネットワークに問題が発生しました。"
+        reply = await provider.interpret("マダミス初心者です", "user123")
+        assert reply == "バックエンドへの接続に問題が発生しました。"

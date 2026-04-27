@@ -11,6 +11,4 @@ COPY . .
 
 EXPOSE 8000
 
-# srcレイアウトに対応するため PYTHONPATH を設定し、パッケージ名指定で起動
-ENV PYTHONPATH=/app/src
-CMD ["/app/.venv/bin/uvicorn", "yume_uranai.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/app/.venv/bin/uvicorn", "madamis.main:app", "--host", "0.0.0.0", "--port", "8000"]

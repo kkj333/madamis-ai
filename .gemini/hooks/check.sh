@@ -5,12 +5,12 @@ echo "--- 🔍 自動品質チェック中... ---" >&2
 
 # backend のチェック
 echo "[backend] Linting and Testing..." >&2
-(cd backend && uv run ruff check . >/dev/null 2>&1 && uv run ty check src >/dev/null 2>&1 && PYTHONPATH=src uv run pytest >/dev/null 2>&1)
+(cd backend && uv run ruff check . >/dev/null 2>&1 && uv run ty check madamis >/dev/null 2>&1 && uv run pytest >/dev/null 2>&1)
 BACKEND_RES=$?
 
 # interface のチェック
 echo "[interface] Linting and Testing..." >&2
-(cd interface && uv run ruff check . >/dev/null 2>&1 && uv run ty check src >/dev/null 2>&1 && PYTHONPATH=src uv run pytest >/dev/null 2>&1)
+(cd interface && uv run ruff check . >/dev/null 2>&1 && uv run ty check madamis_interface >/dev/null 2>&1 && uv run pytest >/dev/null 2>&1)
 INTERFACE_RES=$?
 
 # frontend のチェック

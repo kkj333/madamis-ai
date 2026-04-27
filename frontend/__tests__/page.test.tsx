@@ -1,65 +1,57 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
-import ChatPage from '../app/page'
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
+import ChatPage from "../app/page";
 
-// fetch をモックする
-global.fetch = vi.fn()
+global.fetch = vi.fn();
 
-describe('ChatPage', () => {
+describe("ChatPage", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    // StarField 内の IntersectionObserver など、ブラウザAPIが必要な場合はモックを追加
-    window.HTMLElement.prototype.scrollIntoView = vi.fn()
-  })
+    vi.clearAllMocks();
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+  });
 
-  it('初期状態でウェルカムメッセージが表示される', () => {
-    render(<ChatPage />)
-    expect(screen.getByText(/ようこそ、夢見師のもとへ。/)).toBeDefined()
-  })
+  it("初期状態でウェルカムメッセージが表示される", () => {
+    render(<ChatPage />);
+    expect(screen.getByText(/マーダーミステリー（マダミス）サポートへようこそ。/)).toBeDefined();
+  });
 
-  it('ユーザーがメッセージを送信できる', async () => {
-    // APIレスポンスのモック
-    ;(global.fetch as Mock).mockResolvedValue({
+  it("ユーザーがメッセージを送信できる", async () => {
+    (global.fetch as Mock).mockResolvedValue({
       ok: true,
-      json: async () => ({ reply: 'あなたの夢は素晴らしいですね。' }),
-    })
+      json: async () => ({ reply: "議論ではメモを取ると整理しやすいです。" }),
+    });
 
-    render(<ChatPage />)
-    
-    const input = screen.getByPlaceholderText(/あなたの夢を語ってください/)
-    const sendButton = screen.getByRole('button', { name: /送信/ })
+    render(<ChatPage />);
 
-    // メッセージを入力して送信
-    fireEvent.change(input, { target: { value: '空を飛ぶ夢を見た' } })
-    fireEvent.click(sendButton)
+    const input = screen.getByPlaceholderText(/相談内容を入力/);
+    const sendButton = screen.getByRole("button", { name: /送信/ });
 
-    // ユーザーの入力が表示されることを確認
-    expect(screen.getByText('空を飛ぶ夢を見た')).toBeDefined()
+    fireEvent.change(input, { target: { value: "初マダです。何を準備すればいい？" } });
+    fireEvent.click(sendButton);
 
-    // バックエンドからの返答が表示されるのを待つ
+    expect(screen.getByText("初マダです。何を準備すればいい？")).toBeDefined();
+
     await waitFor(() => {
-      expect(screen.getByText('あなたの夢は素晴らしいですね。')).toBeDefined()
-    })
-  })
+      expect(screen.getByText("議論ではメモを取ると整理しやすいです。")).toBeDefined();
+    });
+  });
 
-  it('APIエラー時にエラーメッセージが表示される', async () => {
-    // APIエラーのモック
-    ;(global.fetch as Mock).mockResolvedValue({
+  it("APIエラー時にエラーメッセージが表示される", async () => {
+    (global.fetch as Mock).mockResolvedValue({
       ok: false,
       status: 500,
-    })
+    });
 
-    render(<ChatPage />)
-    
-    const input = screen.getByPlaceholderText(/あなたの夢を語ってください/)
-    const sendButton = screen.getByRole('button', { name: /送信/ })
+    render(<ChatPage />);
 
-    fireEvent.change(input, { target: { value: '怖い夢を見た' } })
-    fireEvent.click(sendButton)
+    const input = screen.getByPlaceholderText(/相談内容を入力/);
+    const sendButton = screen.getByRole("button", { name: /送信/ });
 
-    // エラーメッセージが表示されるのを待つ
+    fireEvent.change(input, { target: { value: "ルールがよくわからない" } });
+    fireEvent.click(sendButton);
+
     await waitFor(() => {
-      expect(screen.getByText(/夢と現実の境界で通信が途絶えました/)).toBeDefined()
-    })
-  })
-})
+      expect(screen.getByText(/HTTP 500/)).toBeDefined();
+    });
+  });
+});

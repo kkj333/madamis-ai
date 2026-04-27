@@ -76,7 +76,7 @@ function Spinner() {
         <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-indigo-400 animate-spin" />
       </div>
       <span className="text-sm italic animate-pulse">
-        星の導きを読み解いています… ✨
+        手がかりを整理しています…
       </span>
     </div>
   );
@@ -101,7 +101,7 @@ function MessageBubble({ message }: { message: Message }) {
               : "bg-gradient-to-br from-violet-700 to-indigo-900 text-indigo-200 border border-indigo-500/30"
         }`}
       >
-        {isUser ? "私" : isError ? "⚠" : "🌙"}
+        {isUser ? "私" : isError ? "⚠" : "🎭"}
       </div>
 
       {/* バブル */}
@@ -128,7 +128,7 @@ export default function ChatPage() {
       id: uid(),
       role: "assistant",
       content:
-        "ようこそ、夢見師のもとへ。\n\nあなたが見た夢を、どうぞ語ってください。夢の中の風景、登場した人物、感じた感情…どのような細部も、星の言葉を解き明かすための大切な鍵となります。\n\n✦ あなたの夢を聞かせてください ✦",
+        "マーダーミステリー（マダミス）サポートへようこそ。\n\nルールの確認、用語の意味、議論の進め方、GM 向けの段取りなど、ネタバレにならない範囲で相談に乗ります。特定シナリオの真相や犯人についてはお答えできません。卓の最終判断は GM とシナリオに従ってください。\n\n✦ 相談内容を送ってください ✦",
     },
   ]);
   const [input, setInput] = useState("");
@@ -180,14 +180,17 @@ export default function ChatPage() {
         content: data.reply,
       };
       setMessages((prev) => [...prev, assistantMsg]);
-    } catch {
+    } catch (err) {
+      const hint =
+        err instanceof Error && err.message.startsWith("HTTP")
+          ? `サーバーが応答できませんでした（${err.message}）。時間をおいて再度お試しください。`
+          : "接続が途切れました。ネットワークを確認のうえ、もう一度お試しください。";
       setMessages((prev) => [
         ...prev,
         {
           id: uid(),
           role: "error",
-          content:
-            "夢と現実の境界で通信が途絶えました。もう一度お試しください。",
+          content: hint,
         },
       ]);
     } finally {
@@ -210,23 +213,23 @@ export default function ChatPage() {
           "radial-gradient(ellipse at top, #0f1535 0%, #080b14 50%, #03050d 100%)",
       }}
     >
-      {/* 星空の背景 */}
+      {/* 背景の粒子 */}
       <StarField />
 
       {/* ヘッダー */}
       <header className="relative z-10 text-center pt-8 pb-4 px-4">
         <div className="inline-flex items-center gap-2 mb-2">
           <div className="h-px w-12 bg-gradient-to-r from-transparent to-indigo-500/60" />
-          <span className="text-indigo-400/70 text-xs tracking-[0.3em] uppercase">
-            Dream Oracle
+          <span className="text-indigo-400/70 text-xs tracking-[0.25em] uppercase">
+            Madamis Support
           </span>
           <div className="h-px w-12 bg-gradient-to-l from-transparent to-indigo-500/60" />
         </div>
         <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-300 via-purple-200 to-indigo-300 bg-clip-text text-transparent">
-          🌙 夢見師
+          🎭 マダミス相談
         </h1>
         <p className="text-slate-500 text-xs mt-1.5 tracking-wide">
-          夢の深淵に宿るメッセージを読み解く
+          ルールと進行のヒント（ネタバレは出しません）
         </p>
       </header>
 
@@ -242,7 +245,7 @@ export default function ChatPage() {
           {isLoading && (
             <div className="flex gap-3 items-center">
               <div className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br from-violet-700 to-indigo-900 border border-indigo-500/30 text-sm">
-                🌙
+                🎭
               </div>
               <div className="bg-white/5 border border-white/10 backdrop-blur-sm rounded-2xl rounded-tl-sm px-4 py-3">
                 <Spinner />
@@ -262,13 +265,13 @@ export default function ChatPage() {
         >
           <textarea
             ref={textareaRef}
-            id="dream-input"
+            id="madamis-input"
             rows={1}
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             disabled={isLoading}
-            placeholder="あなたの夢を語ってください… (Shift+Enterで改行)"
+            placeholder="相談内容を入力…（Shift+Enter で改行）"
             className="w-full resize-none bg-transparent text-slate-200 placeholder-slate-600 text-sm px-4 pt-3.5 pb-3 pr-14 rounded-2xl outline-none leading-relaxed disabled:opacity-40 min-h-[52px]"
           />
           <button
@@ -295,7 +298,7 @@ export default function ChatPage() {
         </div>
 
         <p className="text-center text-slate-700 text-[10px] mt-2.5 tracking-wide">
-          夢の解釈は参考程度にとどめ、深刻なお悩みは専門家にご相談ください
+          AI は参考用です。ルール・判定は GM とシナリオに従い、深刻なトラブルは専門家へ
         </p>
       </main>
 
