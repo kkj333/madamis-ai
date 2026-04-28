@@ -135,8 +135,8 @@ resource "google_cloud_run_v2_service" "backend" {
         value = google_firestore_database.default.name
       }
       env {
-        name  = "FIRESTORE_COLLECTION"
-        value = "adk_sessions"
+        name  = "ADK_FIRESTORE_ROOT_COLLECTION"
+        value = "adk-session"
       }
     }
   }

@@ -9,10 +9,13 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from google.adk.integrations.firestore.firestore_session_service import (
+    FirestoreSessionService,
+)
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
+from google.cloud import firestore
 from madamis.agent import root_agent
-from madamis.firestore_session_service import FirestoreSessionService
 from madamis.interface import LocalAdkProvider
 from madamis.logging_config import configure_logging
 
@@ -28,10 +31,17 @@ APP_NAME = "madamis_ai"
 def _build_session_service():
     backend = os.getenv("ADK_SESSION_SERVICE", "in_memory").lower()
     if backend == "firestore":
+        client = firestore.AsyncClient(
+            project=os.getenv("FIRESTORE_PROJECT_ID") or None,
+            database=os.getenv("FIRESTORE_DATABASE_ID") or None,
+        )
         return FirestoreSessionService(
-            project=os.getenv("FIRESTORE_PROJECT_ID"),
-            database=os.getenv("FIRESTORE_DATABASE_ID"),
-            collection=os.getenv("FIRESTORE_COLLECTION", "adk_sessions"),
+            client=client,
+            root_collection=(
+                os.getenv("ADK_FIRESTORE_ROOT_COLLECTION")
+                or os.getenv("FIRESTORE_COLLECTION")
+                or None
+            ),
         )
     if backend != "in_memory":
         raise ValueError(
