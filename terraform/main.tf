@@ -106,10 +106,16 @@ resource "google_cloud_run_v2_service" "backend" {
   location = var.app_region
   ingress  = "INGRESS_TRAFFIC_ALL"
 
+  lifecycle {
+    ignore_changes = [
+      template[0].containers[0].image,
+    ]
+  }
+
   template {
     service_account = google_service_account.app_sa.email
     containers {
-      image = "${var.app_region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.name}/backend:latest"
+      image = "${var.app_region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.name}/backend:${var.backend_image_tag}"
       ports {
         container_port = 8000
       }
@@ -161,10 +167,16 @@ resource "google_cloud_run_v2_service" "frontend" {
   location = var.app_region
   ingress  = "INGRESS_TRAFFIC_ALL"
 
+  lifecycle {
+    ignore_changes = [
+      template[0].containers[0].image,
+    ]
+  }
+
   template {
     service_account = google_service_account.app_sa.email
     containers {
-      image = "${var.app_region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.name}/frontend:latest"
+      image = "${var.app_region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.name}/frontend:${var.frontend_image_tag}"
       ports {
         container_port = 3000
       }
@@ -217,7 +229,7 @@ resource "google_compute_instance" "interface" {
       --restart always \
       -e DISCORD_BOT_TOKEN="$DISCORD_BOT_TOKEN" \
       -e API_BASE_URL="${google_cloud_run_v2_service.backend.uri}" \
-      ${var.app_region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.name}/interface:latest
+      ${var.app_region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.name}/interface:${var.interface_image_tag}
   EOT
 
   service_account {

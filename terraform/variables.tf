@@ -21,6 +21,24 @@ variable "firestore_location_id" {
   default     = "asia-northeast1"
 }
 
+variable "backend_image_tag" {
+  description = "Backend Docker image tag to deploy."
+  type        = string
+  default     = "latest"
+}
+
+variable "frontend_image_tag" {
+  description = "Frontend Docker image tag to deploy."
+  type        = string
+  default     = "latest"
+}
+
+variable "interface_image_tag" {
+  description = "Interface Docker image tag to deploy."
+  type        = string
+  default     = "latest"
+}
+
 variable "discord_bot_token" {
   description = "Discord Bot Token (Sensitive)"
   type        = string

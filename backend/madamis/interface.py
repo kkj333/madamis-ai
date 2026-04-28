@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+import hashlib
+
 from google.genai import types
 
 
@@ -28,18 +30,7 @@ class LocalAdkProvider(MadamisSupportProvider):
         self.app_name = app_name
 
     async def interpret(self, text: str, user_id: str) -> str:
-        list_response = await self.session_service.list_sessions(
-            app_name=self.app_name,
-            user_id=user_id,
-        )
-
-        if list_response.sessions:
-            session = list_response.sessions[0]
-        else:
-            session = await self.session_service.create_session(
-                app_name=self.app_name,
-                user_id=user_id,
-            )
+        session = await self._get_or_create_user_session(user_id)
 
         adk_message = types.Content(
             role="user",
@@ -60,3 +51,34 @@ class LocalAdkProvider(MadamisSupportProvider):
             reply_text
             or "応答を取得できませんでした。少し待ってからもう一度お試しください。"
         )
+
+    async def _get_or_create_user_session(self, user_id: str):
+        session_id = _session_id_for_user(user_id)
+        session = await self.session_service.get_session(
+            app_name=self.app_name,
+            user_id=user_id,
+            session_id=session_id,
+        )
+        if session:
+            return session
+
+        try:
+            return await self.session_service.create_session(
+                app_name=self.app_name,
+                user_id=user_id,
+                session_id=session_id,
+            )
+        except Exception:
+            session = await self.session_service.get_session(
+                app_name=self.app_name,
+                user_id=user_id,
+                session_id=session_id,
+            )
+            if session:
+                return session
+            raise
+
+
+def _session_id_for_user(user_id: str) -> str:
+    digest = hashlib.sha256(user_id.encode("utf-8")).hexdigest()[:32]
+    return f"user_{digest}"

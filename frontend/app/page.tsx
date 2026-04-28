@@ -12,10 +12,20 @@ interface Message {
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const WEB_USER_ID_KEY = "madamis_web_user_id";
 
 // ランダムIDを生成
 function uid() {
   return Math.random().toString(36).slice(2, 10);
+}
+
+function getWebUserId() {
+  const existing = window.localStorage.getItem(WEB_USER_ID_KEY);
+  if (existing) return existing;
+
+  const userId = `web_${crypto.randomUUID()}`;
+  window.localStorage.setItem(WEB_USER_ID_KEY, userId);
+  return userId;
 }
 
 // 星をランダム配置するコンポーネント
@@ -163,10 +173,11 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
+      const userId = getWebUserId();
       const res = await fetch(`${BACKEND_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, user_id: userId }),
       });
 
       if (!res.ok) {
