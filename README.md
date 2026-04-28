@@ -15,6 +15,19 @@
 - **Frontend (Next.js)**: ダークトーンの Web チャット UI。Cloud Run でホスト想定。
 - **Interface (Discord Bot)**: Discord からも同じ API を利用。Compute Engine で常時稼働想定。
 
+```mermaid
+flowchart TD
+  WebUser[Web User] --> Frontend[Frontend / Next.js<br/>Cloud Run]
+  Frontend --> Backend[Backend API / FastAPI<br/>Cloud Run]
+
+  DiscordUser[Discord User] --> Discord[Discord]
+  Discord --> Bot[Interface / Discord Bot<br/>Compute Engine]
+  Bot --> Backend
+
+  Backend --> ADK[Google ADK]
+  ADK --> Gemini[Gemini API]
+```
+
 ---
 
 ## ⚡ クイックスタート
