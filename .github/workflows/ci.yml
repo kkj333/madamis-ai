@@ -30,10 +30,10 @@ jobs:
         run: cd backend && uv run ruff check .
 
       - name: Type check (ty)
-        run: cd backend && uv run ty check src
+        run: cd backend && uv run ty check madamis
 
       - name: Test (pytest)
-        run: cd backend && PYTHONPATH=src uv run pytest
+        run: cd backend && uv run pytest
 
   interface:
     runs-on: ubuntu-latest
@@ -58,10 +58,10 @@ jobs:
         run: cd interface && uv run ruff check .
 
       - name: Type check (ty)
-        run: cd interface && uv run ty check src
+        run: cd interface && uv run ty check madamis_interface
 
       - name: Test (pytest)
-        run: cd interface && PYTHONPATH=src uv run pytest
+        run: cd interface && uv run pytest
 
   frontend:
     runs-on: ubuntu-latest

@@ -1,7 +1,11 @@
+[build-system]
+requires = ["hatchling>=1.18.0"]
+build-backend = "hatchling.build"
+
 [project]
-name = "yume-uranai-interface"
+name = "madamis-ai-interface"
 version = "0.1.0"
-description = "夢占いAIエージェント Discord Bot"
+description = "マダミスサポート AI — Discord Bot"
 requires-python = ">=3.12"
 dependencies = [
     "discord.py>=2.3.2",
@@ -17,3 +21,9 @@ dev = [
     "ruff>=0.15.11",
     "ty>=0.0.31",
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["madamis_interface"]
+
+[tool.uv]
+package = true

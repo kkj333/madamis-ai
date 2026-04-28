@@ -9,6 +9,5 @@ COPY . .
 
 # BotはポートをリッスンしないためEXPOSEは不要
 
-ENV PYTHONPATH=/app/src
 ENTRYPOINT []
-CMD ["/app/.venv/bin/python", "-m", "yume_uranai_interface.main"]
+CMD ["/app/.venv/bin/python", "-m", "madamis_interface.main"]

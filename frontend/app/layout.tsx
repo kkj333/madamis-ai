@@ -5,9 +5,9 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "夢占いAI - 夢見師",
+  title: "madamis-ai — マダミスサポート",
   description:
-    "AIが夢の意味を解き明かす。夢に込められたメッセージ、心理状態、吉凶を優しく読み解きます。",
+    "マーダーミステリー（マダミス）のルール・進行・用語を、ネタバレに配慮してチャットで相談できる AI。",
 };
 
 export default function RootLayout({

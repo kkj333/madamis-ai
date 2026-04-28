@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from yume_uranai.main import app
+from madamis.main import app
 
 client = TestClient(app)
 

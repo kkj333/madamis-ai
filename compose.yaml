@@ -1,3 +1,7 @@
+# 環境変数: backend/.env（GOOGLE_API_KEY）・interface/.env（DISCORD_BOT_TOKEN）
+# 各ディレクトリの .env.example をコピーして作成。無くても起動はする（required: false）。
+# Discord Bot も動かす: docker compose --profile discord up --build
+
 services:
   backend:
     build:
@@ -6,27 +10,29 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - .env
-    environment:
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - path: ./backend/.env
+        required: false
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_BACKEND_URL: http://localhost:8000
     ports:
       - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
     depends_on:
       - backend
 
   interface:
+    profiles:
+      - discord
     build:
       context: ./interface
       dockerfile: Dockerfile
     env_file:
-      - .env
+      - path: ./interface/.env
+        required: false
     environment:
       - API_BASE_URL=http://backend:8000
     depends_on:

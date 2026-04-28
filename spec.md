@@ -1,18 +1,22 @@
-# 🌙 夢占いAIエージェント システム設計書
+# マダミスサポート AI（madamis-ai）システム設計書
 
 ## 1. プロジェクト概要
 
-ユーザーがチャット形式で夢の内容を入力すると、AIが夢占いの結果（心理状態、吉凶、アドバイスなど）を返答するWebアプリケーション。神秘的で落ち着いた世界観を提供する。
+ユーザーがチャット形式で **マーダーミステリー（マダミス）** に関する相談（ルール、用語、進め方、GM 向けの段取りなど）を入力すると、AI が **ネタバレに配慮しつつ** 回答する Web アプリケーションおよび Discord ボット。
+
+- **目的**: プレイ前後の疑問解消、議論の整理、用語理解の補助。**公式シナリオの真相の代弁はしない。**
+- **世界観**: 落ち着いたダークトーンのチャット UI（推理・卓上のイメージ）。
 
 ---
 
 ## 2. システムアーキテクチャ
 
-Docker Composeを用いたマルチコンテナ構成。
+Docker Compose を用いたマルチコンテナ構成。**`backend/.env`**（`GOOGLE_API_KEY`）と **`interface/.env`**（`DISCORD_BOT_TOKEN`）を各ディレクトリの `.env.example` から作成して使う。Compose の `env_file` は `required: false` のためファイルが無くても起動は可能。Discord Bot は **`discord` プロファイル**（`docker compose --profile discord up`）でのみ起動し、省略時は Backend + Frontend のみ。
 
-- **Frontend (Next.js)**: ユーザーインターフェースを提供。ユーザーの入力を受け取り、Backendへリクエストを送信。
-- **Backend (FastAPI)**: Frontendからのリクエストを受け取り、`google-adk` を介してLLM（Gemini）にプロンプトとユーザー入力を送信し、結果をFrontendに返す。
-- **LLM**: `gemini-3-flash-preview` を使用し、夢占い師としてのペルソナに基づきテキストを生成。
+- **Frontend (Next.js)**: ユーザーインターフェース。入力を Backend へ送信。
+- **Backend (FastAPI)**: `google-adk` 経由で LLM（Gemini）にプロンプトとユーザー入力を渡し、返答を Frontend / Interface に返す。
+- **Interface (Discord Bot)**: メンションまたは DM で同じ推論 API を利用。
+- **LLM**: `gemini-3-flash-preview`。ペルソナは「マダミスサポート AI」（ルール・進行寄り、ネタバレ抑制ガイドライン付き）。
 
 ---
 
@@ -20,87 +24,89 @@ Docker Composeを用いたマルチコンテナ構成。
 
 | コンポーネント | 技術・ツール | 備考 |
 |---|---|---|
-| 環境構築 | Docker, Docker Compose | フロント・バックエンドを別コンテナで分離 |
-| Frontend | Next.js (App Router), React, Tailwind CSS | Node.js 20系 |
-| Backend | FastAPI, Uvicorn | Python 3.13系 |
-| パッケージ管理 (Python) | uv | 高速なPythonパッケージマネージャー |
-| AI SDK | google-adk | GoogleのAIエージェント構築フレームワーク |
+| 環境構築 | Docker, Docker Compose | フロント・バックエンド・Bot を分離 |
+| Frontend | Next.js (App Router), React, Tailwind CSS | Node.js 20 系 |
+| Backend | FastAPI, Uvicorn | Python 3.13 系 |
+| パッケージ管理 (Python) | uv | |
+| AI SDK | google-adk | |
 | LLM | gemini-3-flash-preview | |
 
 ---
 
-## 4. ディレクトリ構成
+## 4. ディレクトリ構成（概要）
 
 ```
-yume-uranai/
+madamis-ai/
 ├── frontend/             # フロントエンド (Next.js)
-│   ├── app/              # App Router (page.tsx, layout.tsx, globals.css)
-│   ├── package.json
-│   └── Dockerfile        # Node.js環境用
-├── backend/              # バックエンド (FastAPI)
-│   ├── yume_uranai/
-│   │   └── agent.py      # LLM呼び出しロジック (google-adk使用)
-│   ├── main.py           # FastAPI ルーティング設定
-│   ├── pyproject.toml    # uv用依存関係定義
-│   ├── uv.lock           # ロックファイル
-│   └── Dockerfile        # Python/uv環境用
-├── .env                  # APIキー (GOOGLE_API_KEY)
-└── compose.yaml          # コンテナオーケストレーション
+├── backend/              # バックエンド (FastAPI)、`madamis/`・`tests/`
+├── interface/            # Discord Bot、`madamis_interface/`・`tests/`
+├── docs/                 # README 用画像など
+├── terraform/
+├── backend/.env.example  # → backend/.env（GOOGLE_API_KEY）
+├── interface/.env.example # → interface/.env（DISCORD_BOT_TOKEN など）
+└── compose.yaml
 ```
 
 ---
 
-## 5. API仕様 (Frontend ↔ Backend)
+## 5. API 仕様 (Frontend ↔ Backend)
 
 ### `POST /api/chat`
 
-夢の内容を送信し、占い結果を受け取る。
+ユーザーのテキストを送信し、AI の返答を受け取る。
 
 **Request (JSON)**
+
 ```json
 {
-  "text": "空を飛んでいて、急に落ちる夢を見ました"
+  "text": "初めてマダミスに参加します。議論フェーズで気をつけることは？"
 }
 ```
 
 **Response (JSON)**
+
 ```json
 {
-  "reply": "あなたが「空を飛んでいて、急に落ちる夢」を見たのですね。それは..."
+  "reply": "はじめまして。議論フェーズでは…"
 }
 ```
+
+### `POST /api/interpret`
+
+Discord など外部インターフェース用。`text` と `user_id` を受け取り、セッション単位で会話を維持。
 
 ### `GET /health`
 
-バックエンドの死活確認。
-
-**Response (JSON)**
-```json
-{ "status": "ok" }
-```
+死活確認。`{ "status": "ok" }`
 
 ---
 
 ## 6. フロントエンド実装要件
 
-- **UI/デザイン**: ダークテーマを基調とし、夜や夢を連想させるカラーパレット（Slate, Indigo, Purpleなど）を使用。星をランダム配置したアニメーション背景。
-- **状態管理**: Reactの `useState` を用いて、チャット履歴（`messages`）、入力中のテキスト（`input`）、ローディング状態（`isLoading`）を管理。
-- **ローディング表現**: バックエンド通信中は入力を無効化し、「星の導きを読み解いています… ✨」といったテキストとスピナーで待機状態を視覚的に表現する。
-- **エラーハンドリング**: バックエンドとの通信に失敗した場合は、チャットUI上にエラーメッセージ（例: 「夢と現実の境界で通信が途絶えました。もう一度お試しください。」）を表示する。
+- **UI**: ダークテーマ。スレート・インディゴ系。背景は粒子（星風）で緊張感のある卓上の雰囲気を補助してよい。
+- **状態管理**: `useState` でメッセージ履歴・入力・ローディングを管理。
+- **ローディング**: 「手がかりを整理しています…」など、マダミス文脈に合った文言とスピナー。
+- **エラー**: 通信失敗時は「接続が途切れました」など、マダミス文脈に合った短いメッセージ。
 
 ---
 
-## 7. バックエンド実装要件
+## 7. バックエンド・エージェント要件
 
-- **CORS設定**: フロントエンドコンテナ（`http://localhost:3000`）からの通信を許可する。
-- **エージェント実装 (`agent.py`)**: `google-adk` を初期化し、`gemini-3-flash-preview` モデルを指定する。
-- **システムプロンプト要件**:
-  - 役割: 神秘的で親しみやすい夢占い師のAI（「夢見師」）
-  - 出力内容: 夢の象徴の解説、現在の心理状態、吉凶の判定、未来への優しいアドバイス
-  - トーン＆マナー: 専門的でありながら、優しく寄り添い、落ち着いた口調
-- **環境変数**: `.env` ファイルから `GOOGLE_API_KEY` を読み込み、エージェントの認証に使用する。
+- **レイアウト**: Python パッケージは `src/` なしのフラット構成（例: `backend/madamis/`）。`uv sync` で editable インストールし、配布用ホイールは想定しない。
+- **CORS**: フロント（例: `http://localhost:3000`）からのリクエストを許可。
+- **`agent.py`**: 上記「マダミスサポート」システムプロンプト（ネタバレ禁止・GM 優先・商業シナリオ真相の非開示）。
+- **環境変数**: `backend/.env` に `GOOGLE_API_KEY`（ADK / Gemini）。Bot 用は `interface/.env` の `DISCORD_BOT_TOKEN`。
 
+---
 
-## 8. discord botとして実装する
+## 8. Discord Bot
 
+- メンションまたは DM でテキストを受け取り、`/api/interpret` へ中継。
+- 空メッセージ時は「相談内容を送ってください」等の案内。
 
+---
+
+## 9. 非機能・ポリシー
+
+- 本システムは **娯楽用サポート** であり、特定作品の公式見解ではない。
+- 利用者には README で **シナリオ・GM の指示を最優先**することを明示する。

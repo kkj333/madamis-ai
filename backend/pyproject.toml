@@ -1,8 +1,11 @@
+[build-system]
+requires = ["hatchling>=1.18.0"]
+build-backend = "hatchling.build"
+
 [project]
-name = "yume-uranai"
+name = "madamis-ai"
 version = "0.1.0"
-description = "夢占いAIエージェント バックエンド"
-readme = "README.md"
+description = "マダミスサポート AI バックエンド（FastAPI）"
 requires-python = ">=3.12"
 dependencies = [
     "google-adk>=1.31.0",
@@ -18,3 +21,9 @@ dev = [
     "ruff>=0.15.11",
     "ty>=0.0.31",
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["madamis"]
+
+[tool.uv]
+package = true
