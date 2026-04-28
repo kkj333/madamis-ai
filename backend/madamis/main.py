@@ -1,6 +1,8 @@
 """マダミスサポート AI バックエンド - FastAPI (推論層)"""
+
 import asyncio
 import logging
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -10,6 +12,7 @@ from pydantic import BaseModel
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from madamis.agent import root_agent
+from madamis.firestore_session_service import FirestoreSessionService
 from madamis.interface import LocalAdkProvider
 from madamis.logging_config import configure_logging
 
@@ -20,7 +23,24 @@ logger = logging.getLogger(__name__)
 
 # --- 基盤設定 (推論層) ---
 APP_NAME = "madamis_ai"
-session_service = InMemorySessionService()
+
+
+def _build_session_service():
+    backend = os.getenv("ADK_SESSION_SERVICE", "in_memory").lower()
+    if backend == "firestore":
+        return FirestoreSessionService(
+            project=os.getenv("FIRESTORE_PROJECT_ID"),
+            database=os.getenv("FIRESTORE_DATABASE_ID"),
+            collection=os.getenv("FIRESTORE_COLLECTION", "adk_sessions"),
+        )
+    if backend != "in_memory":
+        raise ValueError(
+            "ADK_SESSION_SERVICE must be either 'in_memory' or 'firestore'."
+        )
+    return InMemorySessionService()
+
+
+session_service = _build_session_service()
 runner = Runner(
     agent=root_agent,
     app_name=APP_NAME,
@@ -29,9 +49,7 @@ runner = Runner(
 
 # API全体で共通利用するローカルプロバイダー
 local_provider = LocalAdkProvider(
-    runner=runner,
-    session_service=session_service,
-    app_name=APP_NAME
+    runner=runner, session_service=session_service, app_name=APP_NAME
 )
 
 # --- FastAPI 本体 ---
@@ -46,11 +64,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 class ChatRequest(BaseModel):
     text: str
 
+
 class ChatResponse(BaseModel):
     reply: str
+
 
 class InterpretRequest(BaseModel):
     text: str
@@ -66,6 +87,7 @@ def _is_transient_model_overload(error: Exception) -> bool:
         or "'status': 'RESOURCE_EXHAUSTED'" in message
     )
 
+
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """Web フロントエンド用チャット（マダミス相談）"""
@@ -79,6 +101,7 @@ async def chat(request: ChatRequest):
     except Exception as e:
         logger.exception("POST /api/chat failed")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/api/interpret", response_model=ChatResponse)
 async def interpret_api(request: InterpretRequest):
@@ -107,8 +130,7 @@ async def interpret_api(request: InterpretRequest):
             logger.exception("POST /api/interpret failed")
             raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/health")
 async def health():
-    return {
-        "status": "ok"
-    }
+    return {"status": "ok"}

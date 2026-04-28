@@ -1,6 +1,6 @@
 provider "google" {
   project = var.project_id
-  region  = var.region
+  region  = var.app_region
 }
 
 # 必要なAPIの有効化
@@ -10,15 +10,26 @@ resource "google_project_service" "services" {
     "compute.googleapis.com",
     "iam.googleapis.com",
     "artifactregistry.googleapis.com",
-    "secretmanager.googleapis.com"
+    "secretmanager.googleapis.com",
+    "firestore.googleapis.com"
   ])
-  service = each.key
+  service            = each.key
   disable_on_destroy = false
+}
+
+# Firestore database for persistent ADK sessions
+resource "google_firestore_database" "default" {
+  project     = var.project_id
+  name        = "(default)"
+  location_id = var.firestore_location_id
+  type        = "FIRESTORE_NATIVE"
+
+  depends_on = [google_project_service.services]
 }
 
 # Artifact Registry リポジトリ
 resource "google_artifact_registry_repository" "repo" {
-  location      = var.region
+  location      = var.app_region
   repository_id = "madamis-ai"
   description   = "Docker images for madamis-ai"
   format        = "DOCKER"
@@ -32,6 +43,8 @@ resource "google_secret_manager_secret" "google_api_key" {
   replication {
     auto {}
   }
+
+  depends_on = [google_project_service.services]
 }
 
 resource "google_secret_manager_secret_version" "google_api_key" {
@@ -45,6 +58,8 @@ resource "google_secret_manager_secret" "discord_bot_token" {
   replication {
     auto {}
   }
+
+  depends_on = [google_project_service.services]
 }
 
 resource "google_secret_manager_secret_version" "discord_bot_token" {
@@ -78,16 +93,23 @@ resource "google_secret_manager_secret_iam_member" "bot_token_accessor" {
   member    = "serviceAccount:${google_service_account.app_sa.email}"
 }
 
+# 権限付与: Firestore の読み書き
+resource "google_project_iam_member" "firestore_user" {
+  project = var.project_id
+  role    = "roles/datastore.user"
+  member  = "serviceAccount:${google_service_account.app_sa.email}"
+}
+
 # --- Cloud Run (Backend) ---
 resource "google_cloud_run_v2_service" "backend" {
   name     = "madamis-backend"
-  location = var.region
+  location = var.app_region
   ingress  = "INGRESS_TRAFFIC_ALL"
 
   template {
     service_account = google_service_account.app_sa.email
     containers {
-      image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.name}/backend:latest"
+      image = "${var.app_region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.name}/backend:latest"
       ports {
         container_port = 8000
       }
@@ -100,9 +122,29 @@ resource "google_cloud_run_v2_service" "backend" {
           }
         }
       }
+      env {
+        name  = "ADK_SESSION_SERVICE"
+        value = "firestore"
+      }
+      env {
+        name  = "FIRESTORE_PROJECT_ID"
+        value = var.project_id
+      }
+      env {
+        name  = "FIRESTORE_DATABASE_ID"
+        value = google_firestore_database.default.name
+      }
+      env {
+        name  = "FIRESTORE_COLLECTION"
+        value = "adk_sessions"
+      }
     }
   }
-  depends_on = [google_secret_manager_secret_iam_member.api_key_accessor]
+  depends_on = [
+    google_firestore_database.default,
+    google_project_iam_member.firestore_user,
+    google_secret_manager_secret_iam_member.api_key_accessor
+  ]
 }
 
 # 誰でもアクセス可能にする
@@ -116,13 +158,13 @@ resource "google_cloud_run_v2_service_iam_member" "backend_public" {
 # --- Cloud Run (Frontend) ---
 resource "google_cloud_run_v2_service" "frontend" {
   name     = "madamis-frontend"
-  location = var.region
+  location = var.app_region
   ingress  = "INGRESS_TRAFFIC_ALL"
 
   template {
     service_account = google_service_account.app_sa.email
     containers {
-      image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.name}/frontend:latest"
+      image = "${var.app_region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.name}/frontend:latest"
       ports {
         container_port = 3000
       }
@@ -145,7 +187,7 @@ resource "google_cloud_run_v2_service_iam_member" "frontend_public" {
 resource "google_compute_instance" "interface" {
   name         = "madamis-interface"
   machine_type = "e2-micro"
-  zone         = "${var.region}-a"
+  zone         = var.gce_zone
 
   boot_disk {
     initialize_params {
@@ -165,7 +207,7 @@ resource "google_compute_instance" "interface" {
     apt-get install -y docker.io jq
     
     # Artifact Registry 認証
-    gcloud auth configure-docker ${var.region}-docker.pkg.dev --quiet
+    gcloud auth configure-docker ${var.app_region}-docker.pkg.dev --quiet
 
     # Secret Manager から最新のトークンを取得
     DISCORD_BOT_TOKEN=$(gcloud secrets versions access latest --secret="${google_secret_manager_secret.discord_bot_token.secret_id}")
@@ -175,7 +217,7 @@ resource "google_compute_instance" "interface" {
       --restart always \
       -e DISCORD_BOT_TOKEN="$DISCORD_BOT_TOKEN" \
       -e API_BASE_URL="${google_cloud_run_v2_service.backend.uri}" \
-      ${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.name}/interface:latest
+      ${var.app_region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.name}/interface:latest
   EOT
 
   service_account {
