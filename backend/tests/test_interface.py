@@ -12,8 +12,10 @@ class FakeSessionService:
     async def get_session(self, app_name: str, user_id: str, session_id: str):
         return self.sessions.get((app_name, user_id, session_id))
 
-    async def create_session(self, app_name: str, user_id: str, session_id: str):
-        self.create_calls.append((app_name, user_id, session_id))
+    async def create_session(
+        self, app_name: str, user_id: str, session_id: str, state=None
+    ):
+        self.create_calls.append((app_name, user_id, session_id, state))
         session = SimpleNamespace(id=session_id)
         self.sessions[(app_name, user_id, session_id)] = session
         return session
@@ -33,5 +35,31 @@ def test_user_session_id_is_stable_for_same_user():
     assert first.id == _session_id_for_user("user-1")
     assert second.id == first.id
     assert session_service.create_calls == [
-        ("test_app", "user-1", _session_id_for_user("user-1"))
+        ("test_app", "user-1", _session_id_for_user("user-1"), None)
+    ]
+
+
+def test_reserved_state_reproduction_flag_adds_firestore_reserved_key(monkeypatch):
+    monkeypatch.setenv("ADK_REPRODUCE_FIRESTORE_RESERVED_STATE", "1")
+    session_service = FakeSessionService()
+    provider = LocalAdkProvider(
+        runner=None,
+        session_service=session_service,
+        app_name="test_app",
+    )
+
+    session = asyncio.run(provider._get_or_create_user_session("user-1"))
+
+    assert session.id == _session_id_for_user("user-1")
+    assert session_service.create_calls == [
+        (
+            "test_app",
+            "user-1",
+            _session_id_for_user("user-1"),
+            {
+                "__session_metadata__": {
+                    "displayName": "Firestore reserved state repro"
+                }
+            },
+        )
     ]

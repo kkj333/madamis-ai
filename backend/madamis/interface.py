@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import hashlib
+import os
 
 from google.genai import types
 
@@ -63,11 +64,18 @@ class LocalAdkProvider(MadamisSupportProvider):
             return session
 
         try:
-            return await self.session_service.create_session(
-                app_name=self.app_name,
-                user_id=user_id,
-                session_id=session_id,
-            )
+            create_kwargs = {
+                "app_name": self.app_name,
+                "user_id": user_id,
+                "session_id": session_id,
+            }
+            if _reproduce_reserved_state_enabled():
+                create_kwargs["state"] = {
+                    "__session_metadata__": {
+                        "displayName": "Firestore reserved state repro"
+                    }
+                }
+            return await self.session_service.create_session(**create_kwargs)
         except Exception:
             session = await self.session_service.get_session(
                 app_name=self.app_name,
@@ -82,3 +90,11 @@ class LocalAdkProvider(MadamisSupportProvider):
 def _session_id_for_user(user_id: str) -> str:
     digest = hashlib.sha256(user_id.encode("utf-8")).hexdigest()[:32]
     return f"user_{digest}"
+
+
+def _reproduce_reserved_state_enabled() -> bool:
+    return os.getenv("ADK_REPRODUCE_FIRESTORE_RESERVED_STATE", "").lower() in {
+        "1",
+        "true",
+        "yes",
+    }

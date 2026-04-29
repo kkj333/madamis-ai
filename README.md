@@ -74,6 +74,23 @@ docker compose --profile discord up --build
 - **Backend API**: http://localhost:8000
 - **Discord Bot**: `--profile discord` のときのみ起動。トークンが空だとコンテナは終了します。
 
+**ADK Developer UI Firestore reserved state の再現**:
+
+Firestore セッションを有効にした ADK Developer UI を起動するための開発用
+overlay です。ADK Developer UI が初回チャット時に作る
+`__session_metadata__` 付き state により、Firestore の予約フィールド名エラーを
+再現できます。
+`backend/.env` に `GOOGLE_API_KEY`、`FIRESTORE_PROJECT_ID`、
+`FIRESTORE_DATABASE_ID`、`ADK_FIRESTORE_ROOT_COLLECTION` などを設定し、ローカルでは事前に
+`gcloud auth application-default login` を実行してください。
+
+```bash
+docker compose -f compose.yaml -f compose.dev.yaml up --build backend
+```
+
+起動後、http://localhost:8000 を開き、`madamis` アプリで最初のチャットを送ると
+再現できます。
+
 ---
 
 ## 🛠 開発・テスト

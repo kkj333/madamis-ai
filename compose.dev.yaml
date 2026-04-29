@@ -1,0 +1,22 @@
+# ADK Developer UI Firestore reserved-state reproduction overlay.
+# Usage: docker compose -f compose.yaml -f compose.dev.yaml up --build backend
+
+services:
+  backend:
+    build:
+      dockerfile: Dockerfile.dev
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /root/.config/gcloud/application_default_credentials.json
+    command:
+      - /app/.venv/bin/adk
+      - web
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --session_service_uri
+      - firestore://
+      - .
+    volumes:
+      # Uses local ADC from `gcloud auth application-default login`.
+      - ${HOME}/.config/gcloud:/root/.config/gcloud:ro
