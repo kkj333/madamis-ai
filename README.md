@@ -3,8 +3,6 @@
 マーダーミステリー（通称「マダミス」）の **ルール確認・用語・進め方・GM 向けの段取り** などを、チャットで相談できる AI アシスタントです。  
 **商業シナリオの真相や犯人の開示は行わず**、卓の合意とシナリオ・GM の指示を優先するよう設計しています。
 
-![Web チャット UI（トップ画面）](docs/screenshot.png)
-
 ---
 
 ## 🏗 アーキテクチャ
@@ -136,7 +134,6 @@ npm test
 
 ```
 madamis-ai/
-├── docs/             # README 用スクリーンショットなど
 ├── backend/          # FastAPI（`madamis/`・`tests/`・`.env.example` → `.env`）
 ├── frontend/         # Next.js Web UI
 ├── interface/        # Discord Bot（`madamis_interface/`・`tests/`・`.env.example` → `.env`）
