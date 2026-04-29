@@ -12,6 +12,7 @@
 役割ごとに次の 3 コンポーネントで構成しています。
 
 - **Backend (FastAPI)**: Google ADK を用いたマダミスサポート用の推論 API。Cloud Run でホスト想定。
+- **Firestore**: Cloud Run 上の ADK セッション履歴・状態を永続化。
 - **Frontend (Next.js)**: ダークトーンの Web チャット UI。Cloud Run でホスト想定。
 - **Interface (Discord Bot)**: Discord からも同じ API を利用。Compute Engine で常時稼働想定。
 
@@ -25,6 +26,7 @@ flowchart TD
   Bot --> Backend
 
   Backend --> ADK[Google ADK]
+  ADK --> Firestore[(Firestore<br/>Session Store)]
   ADK --> Gemini[Gemini API]
 ```
 
@@ -52,7 +54,7 @@ cp interface/.env.example interface/.env
 # Discord を Docker やローカルで動かすときだけ interface/.env に DISCORD_BOT_TOKEN を設定
 ```
 
-`uv run` で backend / interface を単体起動するときも、各ディレクトリの `.env` が読み込まれます。
+`uv run` で backend / interface を単体起動するときも、各ディレクトリの `.env` が読み込まれます。ローカル backend は既定でメモリ上のセッションを使います。Firestore に保存したい場合は `backend/.env` に `ADK_SESSION_SERVICE=firestore`、`FIRESTORE_PROJECT_ID`、`FIRESTORE_DATABASE_ID` を設定し、ADC などの Google Cloud 認証を用意してください。
 
 ### 3. Docker Compose で起動
 
@@ -117,9 +119,12 @@ npm test
 ### インフラ構成（Terraform 想定）
 
 - **Cloud Run**: Backend API, Web Frontend
+- **Firestore**: ADK セッション状態の永続化
 - **Compute Engine (e2-micro)**: Discord Bot（Free Tier 活用想定）
 - **Secret Manager**: API キー・トークン
 - **Artifact Registry**: Docker イメージ
+
+既定では Cloud Run / Artifact Registry / Firestore は日本リージョン（`asia-northeast1`）、Discord Bot 用 GCE は Free Tier 対象ゾーン（`us-west1-a`）に作成します。
 
 ### CI（GitHub Actions）
 
