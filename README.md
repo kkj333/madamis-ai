@@ -88,8 +88,8 @@ overlay です。ADK Developer UI が初回チャット時に作る
 docker compose -f compose.yaml -f compose.dev.yaml up --build backend
 ```
 
-起動後、http://localhost:8000 を開き、`madamis` アプリで最初のチャットを送ると
-再現できます。
+起動後、http://localhost:8001 を開き、`madamis` アプリで最初のチャットを送ると
+再現できます（ホストの 8001 → コンテナ内 8000。通常の `docker compose up` の 8000 と競合しません）。
 
 ---
 

@@ -537,7 +537,7 @@ wheels = [
 [[package]]
 name = "google-adk"
 version = "1.31.0"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/nileshpatil6/adk-python.git?rev=fix%2Ffirestore-reserved-state-keys#72ebdc5aadc5f9207614d58890d2883a877b896d" }
 dependencies = [
     { name = "aiosqlite" },
     { name = "anyio" },
@@ -584,10 +584,6 @@ dependencies = [
     { name = "uvicorn" },
     { name = "watchdog" },
     { name = "websockets" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/4e/7a/2d596bf923d9491163b1fc74f9927c538ffa8ea8fec3cadacf26749d2239/google_adk-1.31.0.tar.gz", hash = "sha256:1ebcf2f3c790bd95e8fc43c5390606a9a1019f424bdbd675fcdd4ed33e5b4c3d", size = 2407101, upload-time = "2026-04-17T00:59:03.83Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/3e/4f/ce4a0de8a7b03431d67d7375c5e9c1becc8b9351630b7b34f0943b42fb27/google_adk-1.31.0-py3-none-any.whl", hash = "sha256:1886cfd0c9f1455fb08500348e8861be6c6810ec3eabc9dfcbfe1309ea8e3202", size = 2849240, upload-time = "2026-04-17T00:59:01.452Z" },
 ]
 
 [[package]]
@@ -664,7 +660,7 @@ wheels = [
 
 [[package]]
 name = "google-cloud-aiplatform"
-version = "1.148.0"
+version = "1.149.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "docstring-parser" },
@@ -680,9 +676,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fe/5f/4d7c5e1e35f1a514e7f23882cf68738c5ef96d12a74383e6d008e698d207/google_cloud_aiplatform-1.148.0.tar.gz", hash = "sha256:86a736a6a90cb97d17b51c8a973cda474ca9ace44ee00a2da96f8e60e6c6d5df", size = 10275203, upload-time = "2026-04-15T02:35:09.001Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/42/2c/fba4adc56f74c0ee0fbd91a39d414ca2c3588dd8b71f9be8a507015ca886/google_cloud_aiplatform-1.149.0.tar.gz", hash = "sha256:a4d73485bf1d727a9e1bbbd13d08d7031490686bbf7d125eb905c1a6c1559a35", size = 10451466, upload-time = "2026-04-27T23:11:54.513Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8e/f7/f3af0f8b4cee02be64e1f3dede9219b0624f95d788ad334971f5269ed35d/google_cloud_aiplatform-1.148.0-py2.py3-none-any.whl", hash = "sha256:0c4a20e7f096e9a5a3cecc90ba3b67ce27f94afdf089cd9b3a738ff5af2f3b00", size = 8433269, upload-time = "2026-04-15T02:35:05.594Z" },
+    { url = "https://files.pythonhosted.org/packages/bf/a0/27719ba23967ef62e52a1d54e013e0fc174bdab8dd84fb300bab9bf0d4a3/google_cloud_aiplatform-1.149.0-py2.py3-none-any.whl", hash = "sha256:e6b5299fa5d303e971cb29a19f03fdbb7b1e3b9d2faa3a788ca933341fba2f2e", size = 8570410, upload-time = "2026-04-27T23:11:50.495Z" },
 ]
 
 [package.optional-dependencies]
@@ -1394,7 +1390,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.115.0" },
-    { name = "google-adk", specifier = ">=1.31.0" },
+    { name = "google-adk", git = "https://github.com/nileshpatil6/adk-python.git?rev=fix%2Ffirestore-reserved-state-keys" },
     { name = "google-cloud-firestore", specifier = ">=2.27.0" },
     { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.32.0" },
