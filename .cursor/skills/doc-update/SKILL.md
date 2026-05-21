@@ -16,7 +16,7 @@ disable-model-invocation: true
 | --- | --- |
 | `README.md` | 入口・セットアップ・Docker・Dev UI |
 | `spec.md` | 全体構成・環境変数・デプロイ方針 |
-| `backend/docs/*.md` | 再現手順など（例: `tools-pydantic-repro.md`） |
+| `backend/docs/*.md` | 補足ドキュメント（必要なときのみ） |
 | `backend/.env.example` / `interface/.env.example` | 環境変数の例 |
 
 ## 変更種別 → 更新先
@@ -27,7 +27,7 @@ disable-model-invocation: true
 | Vertex / Firestore / Gemini 設定 | `README.md`, `backend/.env.example`, `spec.md`, `terraform/` コメント |
 | Docker / compose / Dev UI | `README.md`, `compose.yaml`, `compose.dev.yaml` コメント |
 | Terraform / Cloud Run | `README.md`, `spec.md`, `terraform/variables.tf` の description |
-| tools + Pydantic 再現 | `backend/docs/tools-pydantic-repro.md`, `README.md` |
+| scripts / ADK 調査 | `README.md`, `backend/scripts/` |
 | CI | `.github/workflows/ci.yml` と README のテスト手順 |
 
 ## 手順
