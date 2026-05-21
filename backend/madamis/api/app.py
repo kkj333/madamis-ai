@@ -3,8 +3,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from madamis.interface import MadamisSupportProvider
-from madamis.routes import create_router
+from madamis.api.routes import create_router
+from madamis.providers.base import MadamisSupportProvider
 
 
 def create_app(provider: MadamisSupportProvider) -> FastAPI:

@@ -19,9 +19,9 @@ from google.adk.sessions.in_memory_session_service import InMemorySessionService
 from google.adk.tools.set_model_response_tool import SetModelResponseTool
 from google.genai import types
 
-from madamis.config import ensure_llm_config, get_gemini_model, load_environment
-from madamis.dice import roll_dice
-from madamis.schemas import Recipe
+from madamis.core.config import ensure_llm_config, get_gemini_model, load_environment
+from madamis.models.recipe import Recipe
+from madamis.tools.dice import roll_dice
 
 PROMPT = "2d6振って。クッキーレシピ: 2 cups flour, bake 375F."
 
@@ -39,7 +39,9 @@ def repro_dict_schema_declaration_error() -> None:
 async def _run_agent(label: str, agent: Agent, *, force_fallback: bool = False) -> None:
     print(f"\n=== [live] {label} ===")
     session_service = InMemorySessionService()
-    runner = Runner(agent=agent, app_name="tools-pydantic-repro", session_service=session_service)
+    runner = Runner(
+        agent=agent, app_name="tools-pydantic-repro", session_service=session_service
+    )
     session = await session_service.create_session(
         app_name="tools-pydantic-repro", user_id="repro-user"
     )
@@ -75,7 +77,9 @@ async def _consume(runner: Runner, session, message: types.Content) -> None:
         new_message=message,
     ):
         if event.error_code:
-            raise RuntimeError(f"{event.error_code} {getattr(event, 'error_message', '')}")
+            raise RuntimeError(
+                f"{event.error_code} {getattr(event, 'error_message', '')}"
+            )
 
 
 async def run_live_cases() -> None:

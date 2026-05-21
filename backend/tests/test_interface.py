@@ -1,7 +1,7 @@
 import asyncio
 from types import SimpleNamespace
 
-from madamis.interface import LocalAdkProvider, _session_id_for_user
+from madamis.providers.local import LocalAdkProvider, session_id_for_user
 
 
 class FakeSessionService:
@@ -30,8 +30,8 @@ def test_user_session_id_is_stable_for_same_user():
     first = asyncio.run(provider._get_or_create_user_session("user-1"))
     second = asyncio.run(provider._get_or_create_user_session("user-1"))
 
-    assert first.id == _session_id_for_user("user-1")
+    assert first.id == session_id_for_user("user-1")
     assert second.id == first.id
     assert session_service.create_calls == [
-        ("test_app", "user-1", _session_id_for_user("user-1"))
+        ("test_app", "user-1", session_id_for_user("user-1"))
     ]

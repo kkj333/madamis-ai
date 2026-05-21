@@ -1,4 +1,4 @@
-from madamis import dice
+from madamis.tools import dice
 
 
 def test_roll_dice_with_count_and_sides(monkeypatch):

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from madamis.schemas import Ingredient, Recipe
+from madamis.models.recipe import Ingredient, Recipe
 
 
 def test_recipe_model_json_schema_has_nested_ingredients():

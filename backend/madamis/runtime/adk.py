@@ -9,9 +9,9 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.cloud import firestore
 
-from madamis.agent import root_agent
-from madamis.config import APP_NAME, ensure_llm_config
-from madamis.interface import LocalAdkProvider
+from madamis.agent.support import root_agent
+from madamis.core.config import APP_NAME, ensure_llm_config
+from madamis.providers.local import LocalAdkProvider
 
 
 def build_session_service():

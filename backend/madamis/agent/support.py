@@ -2,8 +2,8 @@
 
 from google.adk.agents import Agent
 
-from madamis.config import get_gemini_model, load_environment
-from madamis.dice import roll_dice
+from madamis.core.config import get_gemini_model, load_environment
+from madamis.tools.dice import roll_dice
 
 load_environment()
 

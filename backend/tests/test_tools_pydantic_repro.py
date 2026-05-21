@@ -7,7 +7,7 @@ from google.adk.tools.set_model_response_tool import SetModelResponseTool
 from google.adk.utils.output_schema_utils import can_use_output_schema_with_tools
 
 from madamis.agent import root_agent as madamis_agent
-from madamis.schemas import Recipe
+from madamis.models.recipe import Recipe
 from tools_pydantic_repro.agent import root_agent as repro_agent
 
 

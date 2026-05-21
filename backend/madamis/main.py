@@ -1,9 +1,9 @@
 """マダミスサポート AI バックエンド - FastAPI エントリポイント"""
 
-from madamis.app import create_app
-from madamis.config import load_environment
-from madamis.logging_config import configure_logging
-from madamis.runtime import create_local_provider
+from madamis.api.app import create_app
+from madamis.core.config import load_environment
+from madamis.core.logging_config import configure_logging
+from madamis.runtime.adk import create_local_provider
 
 load_environment()
 configure_logging()

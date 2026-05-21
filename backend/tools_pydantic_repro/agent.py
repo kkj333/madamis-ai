@@ -10,9 +10,9 @@ fallback path or the deterministic declaration bug.
 
 from google.adk.agents import Agent
 
-from madamis.config import get_gemini_model, load_environment
-from madamis.dice import roll_dice
-from madamis.schemas import Recipe
+from madamis.core.config import get_gemini_model, load_environment
+from madamis.models.recipe import Recipe
+from madamis.tools.dice import roll_dice
 
 load_environment()
 

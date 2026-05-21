@@ -90,5 +90,11 @@ uv run python scripts/adk_tools_pydantic_error_repro.py
 
 ## 参考
 
-- `madamis` — `roll_dice` のみ（通常動作の対照）
-- `scripts/genai_pydantic_repro.py` — ADK なし genai + JSON schema（tools ループ外）
+| パス | 役割 |
+|------|------|
+| `madamis/agent/support.py` | 本番 `madamis` — `roll_dice` のみ（対照） |
+| `madamis/models/recipe.py` | `Recipe` / `Ingredient`（structured output 用） |
+| `madamis/tools/dice.py` | `roll_dice` tool |
+| `tools_pydantic_repro/agent.py` | `roll_dice` + `output_schema=Recipe` |
+| `scripts/adk_tools_pydantic_error_repro.py` | ADK 経路の Live / offline 再現 |
+| `scripts/genai_pydantic_repro.py` | ADK なし genai + JSON schema（tools ループ外） |
