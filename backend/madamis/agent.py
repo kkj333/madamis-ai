@@ -2,7 +2,10 @@
 
 from google.adk.agents import Agent
 
+from madamis.config import get_gemini_model, load_environment
 from madamis.dice import roll_dice
+
+load_environment()
 
 MADMIS_SUPPORT_INSTRUCTION = """
 あなたはマーダーミステリー（通称「マダミス」）のプレイ・進行・ルールに詳しい、落ち着いたトーンのサポート AI です。
@@ -35,7 +38,7 @@ MADMIS_SUPPORT_INSTRUCTION = """
 """
 
 root_agent = Agent(
-    model="gemini-3-flash-preview",
+    model=get_gemini_model(),
     name="madamis_support_agent",
     description="マーダーミステリー（マダミス）のルール・進行・プレイを、ネタバレに配慮しつつサポートする AI",
     instruction=MADMIS_SUPPORT_INSTRUCTION,

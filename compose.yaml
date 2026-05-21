@@ -1,4 +1,4 @@
-# 環境変数: backend/.env（GOOGLE_API_KEY）・interface/.env（DISCORD_BOT_TOKEN）
+# 環境変数: backend/.env（Vertex AI）・interface/.env（DISCORD_BOT_TOKEN）
 # 各ディレクトリの .env.example をコピーして作成。無くても起動はする（required: false）。
 # Discord Bot も動かす: docker compose --profile discord up --build
 

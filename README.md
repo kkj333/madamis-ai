@@ -25,7 +25,7 @@ flowchart TD
 
   Backend --> ADK[Google ADK]
   ADK --> Firestore[(Firestore<br/>Session Store)]
-  ADK --> Gemini[Gemini API]
+  ADK --> Gemini[Vertex AI / Gemini]
 ```
 
 ---
@@ -40,14 +40,25 @@ flowchart TD
 mise install
 ```
 
-### 2. API キーの設定
+### 2. Vertex AI の設定
 
 **コンポーネントごとに `backend/.env` と `interface/.env` を置く**形にしています（ルートの `.env` は不要）。
 
 ```bash
 cp backend/.env.example backend/.env
-# backend/.env に GOOGLE_API_KEY（チャット API 用）を設定
+```
 
+`backend/.env` の例（Vertex AI + ADC。`gemini-3-flash-preview` は **`GOOGLE_CLOUD_LOCATION=global`**）:
+
+```env
+GOOGLE_GENAI_USE_VERTEXAI=1
+GOOGLE_CLOUD_PROJECT=your-gcp-project-id
+GOOGLE_CLOUD_LOCATION=global
+```
+
+ローカルでは `gcloud auth application-default login` を実行してください。Cloud Run 本番も同じく Vertex AI 経由（サービスアカウント ADC）です。
+
+```bash
 cp interface/.env.example interface/.env
 # Discord を Docker やローカルで動かすときだけ interface/.env に DISCORD_BOT_TOKEN を設定
 ```
@@ -56,7 +67,7 @@ cp interface/.env.example interface/.env
 
 ### 3. Docker Compose で起動
 
-Compose は **`backend/.env` / `interface/.env`** を読み込みます（ファイルが無くても起動はしますが、キー未設定なら API や Bot は動きません）。
+Compose は **`backend/.env` / `interface/.env`** を読み込みます（ファイルが無くても起動はしますが、GCP 設定や Bot トークン未設定なら API や Bot は動きません）。
 
 **Web + バックエンドのみ**（Discord なし）:
 
@@ -73,6 +84,49 @@ docker compose --profile discord up --build
 - **Web UI**: http://localhost:3000
 - **Backend API**: http://localhost:8000
 - **Discord Bot**: `--profile discord` のときのみ起動。トークンが空だとコンテナは終了します。
+
+**ADK Developer UI（開発・手動テスト）**
+
+Vertex AI + メモリ上セッションで ADK Web UI を起動します（通常の `:8000` と競合しないよう **`:8001`**）。
+
+```bash
+# backend/.env に GOOGLE_CLOUD_* を設定
+gcloud auth application-default login
+
+# Dev UI（:8001）
+docker compose -f compose.yaml -f compose.dev.yaml up --build backend
+
+# バックグラウンド
+# docker compose -f compose.yaml -f compose.dev.yaml up --build -d backend
+
+# 再現スクリプト
+# docker compose -f compose.yaml -f compose.dev.yaml run --rm backend \
+#   /app/.venv/bin/python scripts/adk_tools_pydantic_error_repro.py
+
+# 停止
+# docker compose -f compose.yaml -f compose.dev.yaml down
+```
+
+http://localhost:8001 を開き、アプリを選んで試せます。
+
+| アプリ | 用途 |
+|--------|------|
+| **`madamis`** | 通常サポート + `roll_dice` tool（対照） |
+| **`tools_pydantic_repro`** | `roll_dice` + `output_schema=Recipe` — **tools + Pydantic 再現** |
+
+詳細: [backend/docs/tools-pydantic-repro.md](backend/docs/tools-pydantic-repro.md)
+
+**google.genai + JSON schema（ADK なし・対照用）**
+
+Gemini は **JSON 文字列** を返すだけ。`Recipe` インスタンスにするのは `model_validate_json` の責務:
+
+```bash
+cd backend
+gcloud auth application-default login
+uv run python scripts/genai_pydantic_repro.py
+```
+
+※ 貼り付け例の `response_format` は新しい SDK 向け。本リポの google-genai 1.73 では `response_mime_type` + `response_json_schema` を使用。
 
 ---
 
@@ -119,7 +173,7 @@ npm test
 - **Cloud Run**: Backend API, Web Frontend
 - **Firestore**: ADK セッション状態の永続化
 - **Compute Engine (e2-micro)**: Discord Bot（Free Tier 活用想定）
-- **Secret Manager**: API キー・トークン
+- **Secret Manager**: Discord Bot トークン
 - **Artifact Registry**: Docker イメージ
 
 既定では Cloud Run / Artifact Registry / Firestore は日本リージョン（`asia-northeast1`）、Discord Bot 用 GCE は Free Tier 対象ゾーン（`us-west1-a`）に作成します。

@@ -11,7 +11,8 @@ resource "google_project_service" "services" {
     "iam.googleapis.com",
     "artifactregistry.googleapis.com",
     "secretmanager.googleapis.com",
-    "firestore.googleapis.com"
+    "firestore.googleapis.com",
+    "aiplatform.googleapis.com",
   ])
   service            = each.key
   disable_on_destroy = false
@@ -37,21 +38,6 @@ resource "google_artifact_registry_repository" "repo" {
 }
 
 # --- Secret Manager ---
-# Google API Key
-resource "google_secret_manager_secret" "google_api_key" {
-  secret_id = "google-api-key"
-  replication {
-    auto {}
-  }
-
-  depends_on = [google_project_service.services]
-}
-
-resource "google_secret_manager_secret_version" "google_api_key" {
-  secret      = google_secret_manager_secret.google_api_key.id
-  secret_data = var.google_api_key
-}
-
 # Discord Bot Token
 resource "google_secret_manager_secret" "discord_bot_token" {
   secret_id = "discord-bot-token"
@@ -80,13 +66,7 @@ resource "google_project_iam_member" "artifact_registry_reader" {
   member  = "serviceAccount:${google_service_account.app_sa.email}"
 }
 
-# 権限付与: Secret Manager の読み取り
-resource "google_secret_manager_secret_iam_member" "api_key_accessor" {
-  secret_id = google_secret_manager_secret.google_api_key.id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.app_sa.email}"
-}
-
+# 権限付与: Secret Manager の読み取り（Discord Bot トークン）
 resource "google_secret_manager_secret_iam_member" "bot_token_accessor" {
   secret_id = google_secret_manager_secret.discord_bot_token.id
   role      = "roles/secretmanager.secretAccessor"
@@ -97,6 +77,13 @@ resource "google_secret_manager_secret_iam_member" "bot_token_accessor" {
 resource "google_project_iam_member" "firestore_user" {
   project = var.project_id
   role    = "roles/datastore.user"
+  member  = "serviceAccount:${google_service_account.app_sa.email}"
+}
+
+# 権限付与: Vertex AI（Gemini）呼び出し
+resource "google_project_iam_member" "vertex_ai_user" {
+  project = var.project_id
+  role    = "roles/aiplatform.user"
   member  = "serviceAccount:${google_service_account.app_sa.email}"
 }
 
@@ -120,13 +107,16 @@ resource "google_cloud_run_v2_service" "backend" {
         container_port = 8000
       }
       env {
-        name = "GOOGLE_API_KEY"
-        value_source {
-          secret_key_ref {
-            secret  = google_secret_manager_secret.google_api_key.secret_id
-            version = "latest"
-          }
-        }
+        name  = "GOOGLE_GENAI_USE_VERTEXAI"
+        value = "1"
+      }
+      env {
+        name  = "GOOGLE_CLOUD_PROJECT"
+        value = var.project_id
+      }
+      env {
+        name  = "GOOGLE_CLOUD_LOCATION"
+        value = var.vertex_location
       }
       env {
         name  = "ADK_SESSION_SERVICE"
@@ -149,7 +139,7 @@ resource "google_cloud_run_v2_service" "backend" {
   depends_on = [
     google_firestore_database.default,
     google_project_iam_member.firestore_user,
-    google_secret_manager_secret_iam_member.api_key_accessor
+    google_project_iam_member.vertex_ai_user,
   ]
 }
 

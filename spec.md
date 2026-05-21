@@ -11,7 +11,7 @@
 
 ## 2. システムアーキテクチャ
 
-Docker Compose を用いたマルチコンテナ構成。**`backend/.env`**（`GOOGLE_API_KEY`）と **`interface/.env`**（`DISCORD_BOT_TOKEN`）を各ディレクトリの `.env.example` から作成して使う。Compose の `env_file` は `required: false` のためファイルが無くても起動は可能。Discord Bot は **`discord` プロファイル**（`docker compose --profile discord up`）でのみ起動し、省略時は Backend + Frontend のみ。
+Docker Compose を用いたマルチコンテナ構成。**`backend/.env`**（`GOOGLE_CLOUD_PROJECT` 等）と **`interface/.env`**（`DISCORD_BOT_TOKEN`）を各ディレクトリの `.env.example` から作成して使う。Compose の `env_file` は `required: false` のためファイルが無くても起動は可能。Discord Bot は **`discord` プロファイル**（`docker compose --profile discord up`）でのみ起動し、省略時は Backend + Frontend のみ。
 
 - **Frontend (Next.js)**: ユーザーインターフェース。入力を Backend へ送信。
 - **Backend (FastAPI)**: `google-adk` 経由で LLM（Gemini）にプロンプトとユーザー入力を渡し、返答を Frontend / Interface に返す。
@@ -42,7 +42,7 @@ madamis-ai/
 ├── interface/            # Discord Bot、`madamis_interface/`・`tests/`
 ├── docs/                 # README 用画像など
 ├── terraform/
-├── backend/.env.example  # → backend/.env（GOOGLE_API_KEY）
+├── backend/.env.example  # → backend/.env（Vertex AI / GCP）
 ├── interface/.env.example # → interface/.env（DISCORD_BOT_TOKEN など）
 └── compose.yaml
 ```
@@ -95,7 +95,7 @@ Discord など外部インターフェース用。`text` と `user_id` を受け
 - **レイアウト**: Python パッケージは `src/` なしのフラット構成（例: `backend/madamis/`）。`uv sync` で editable インストールし、配布用ホイールは想定しない。
 - **CORS**: フロント（例: `http://localhost:3000`）からのリクエストを許可。
 - **`agent.py`**: 上記「マダミスサポート」システムプロンプト（ネタバレ禁止・GM 優先・商業シナリオ真相の非開示）。
-- **環境変数**: `backend/.env` に `GOOGLE_API_KEY`（ADK / Gemini）。Bot 用は `interface/.env` の `DISCORD_BOT_TOKEN`。
+- **環境変数**: `backend/.env` に `GOOGLE_CLOUD_PROJECT` / `GOOGLE_CLOUD_LOCATION`（Vertex AI / ADK）。Bot 用は `interface/.env` の `DISCORD_BOT_TOKEN`。
 
 ---
 
