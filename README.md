@@ -99,35 +99,11 @@ docker compose -f compose.yaml -f compose.dev.yaml up --build backend
 # バックグラウンド
 # docker compose -f compose.yaml -f compose.dev.yaml up --build -d backend
 
-# 再現スクリプト
-# docker compose -f compose.yaml -f compose.dev.yaml run --rm backend \
-#   /app/.venv/bin/python scripts/adk_tools_pydantic_error_repro.py
-
 # 停止
 # docker compose -f compose.yaml -f compose.dev.yaml down
 ```
 
 http://localhost:8001 を開き **`madamis`** アプリで試せます。
-
-**ADK + tools + Pydantic 再現（オフライン / Live）**
-
-```bash
-cd backend
-uv run pytest tests/test_adk_output_schema.py -q
-uv run python scripts/adk_tools_pydantic_error_repro.py   # Vertex ADC 要
-```
-
-**google.genai + JSON schema（ADK なし）**
-
-Gemini は **JSON 文字列** を返すだけ。`Recipe` インスタンスにするのは `model_validate_json` の責務:
-
-```bash
-cd backend
-gcloud auth application-default login
-uv run python scripts/genai_pydantic_repro.py
-```
-
-※ 貼り付け例の `response_format` は新しい SDK 向け。本リポの google-genai 1.73 では `response_mime_type` + `response_json_schema` を使用。
 
 ---
 
@@ -195,7 +171,6 @@ madamis-ai/
 │       ├── api/      # FastAPI app / routes / HTTP schemas
 │       ├── agent/    # ADK 本番エージェント（`support.py`）
 │       ├── core/     # config / logging
-│       ├── models/   # 共有 Pydantic（例: `recipe.py`）
 │       ├── providers/# ADK プロバイダ抽象
 │       ├── runtime/  # Runner / セッション組み立て
 │       └── tools/    # エージェント tool（例: `dice.py`）

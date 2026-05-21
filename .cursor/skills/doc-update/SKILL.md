@@ -27,7 +27,6 @@ disable-model-invocation: true
 | Vertex / Firestore / Gemini 設定 | `README.md`, `backend/.env.example`, `spec.md`, `terraform/` コメント |
 | Docker / compose / Dev UI | `README.md`, `compose.yaml`, `compose.dev.yaml` コメント |
 | Terraform / Cloud Run | `README.md`, `spec.md`, `terraform/variables.tf` の description |
-| scripts / ADK 調査 | `README.md`, `backend/scripts/` |
 | CI | `.github/workflows/ci.yml` と README のテスト手順 |
 
 ## 手順
