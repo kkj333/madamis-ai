@@ -107,16 +107,17 @@ docker compose -f compose.yaml -f compose.dev.yaml up --build backend
 # docker compose -f compose.yaml -f compose.dev.yaml down
 ```
 
-http://localhost:8001 を開き、アプリを選んで試せます。
+http://localhost:8001 を開き **`madamis`** アプリで試せます。
 
-| アプリ | 用途 |
-|--------|------|
-| **`madamis`** | 通常サポート + `roll_dice` tool（対照） |
-| **`tools_pydantic_repro`** | `roll_dice` + `output_schema=Recipe` — **tools + Pydantic 再現** |
+**ADK + tools + Pydantic 再現（オフライン / Live）**
 
-詳細: [backend/docs/tools-pydantic-repro.md](backend/docs/tools-pydantic-repro.md)
+```bash
+cd backend
+uv run pytest tests/test_adk_output_schema.py -q
+uv run python scripts/adk_tools_pydantic_error_repro.py   # Vertex ADC 要
+```
 
-**google.genai + JSON schema（ADK なし・対照用）**
+**google.genai + JSON schema（ADK なし）**
 
 Gemini は **JSON 文字列** を返すだけ。`Recipe` インスタンスにするのは `model_validate_json` の責務:
 

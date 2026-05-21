@@ -109,7 +109,7 @@ backend/madamis/
 
 - **CORS**: フロント（例: `http://localhost:3000`）からのリクエストを許可。
 - **`agent/support.py`**: 上記「マダミスサポート」システムプロンプト（ネタバレ禁止・GM 優先・商業シナリオ真相の非開示）。`tools/roll_dice` を登録。
-- **再現用**: `backend/tools_pydantic_repro/` は ADK Dev UI 向けの別アプリ（本番 `madamis` パッケージの `models/recipe.py` と `tools/dice.py` を import）。
+- **ADK 調査用**: `models/recipe.py` と `backend/scripts/`（本番 API とは別経路）。
 - **環境変数**: `backend/.env` に `GOOGLE_CLOUD_PROJECT` / `GOOGLE_CLOUD_LOCATION`（Vertex AI / ADK）。Bot 用は `interface/.env` の `DISCORD_BOT_TOKEN`。
 
 ---
