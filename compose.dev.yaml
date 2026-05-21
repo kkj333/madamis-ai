@@ -1,9 +1,7 @@
 # ADK Developer UI overlay (Vertex AI, in-memory sessions).
 # Usage: docker compose -f compose.yaml -f compose.dev.yaml up --build backend
 #
-# Open http://localhost:8001 and select an app:
-#   madamis            — サイコロ tool 付きサポート AI
-#   tools_pydantic_repro — tools + output_schema (Recipe) 再現
+# Open http://localhost:8001 and select the madamis app.
 # Requires: backend/.env (GOOGLE_CLOUD_*), `gcloud auth application-default login`
 
 services:
