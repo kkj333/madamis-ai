@@ -21,6 +21,12 @@ variable "firestore_location_id" {
   default     = "asia-northeast1"
 }
 
+variable "vertex_location" {
+  description = "Vertex AI location for Gemini (GOOGLE_CLOUD_LOCATION). gemini-3-flash uses global."
+  type        = string
+  default     = "global"
+}
+
 variable "backend_image_tag" {
   description = "Backend Docker image tag to deploy."
   type        = string
@@ -41,12 +47,6 @@ variable "interface_image_tag" {
 
 variable "discord_bot_token" {
   description = "Discord Bot Token (Sensitive)"
-  type        = string
-  sensitive   = true
-}
-
-variable "google_api_key" {
-  description = "Google Generative AI API Key (Sensitive)"
   type        = string
   sensitive   = true
 }
