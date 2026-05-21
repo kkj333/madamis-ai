@@ -5,9 +5,9 @@ import logging
 
 from fastapi import APIRouter, HTTPException
 
-from madamis.config import DEFAULT_WEB_USER_ID
-from madamis.interface import MadamisSupportProvider
-from madamis.schemas import ChatRequest, ChatResponse, InterpretRequest
+from madamis.api.schemas import ChatRequest, ChatResponse, InterpretRequest
+from madamis.core.config import DEFAULT_WEB_USER_ID
+from madamis.providers.base import MadamisSupportProvider
 
 logger = logging.getLogger(__name__)
 

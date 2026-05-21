@@ -1,4 +1,8 @@
-from madamis.config import DEFAULT_GEMINI_MODEL, get_gemini_model, llm_config_errors
+from madamis.core.config import (
+    DEFAULT_GEMINI_MODEL,
+    get_gemini_model,
+    llm_config_errors,
+)
 
 
 def test_get_gemini_model_defaults(monkeypatch):

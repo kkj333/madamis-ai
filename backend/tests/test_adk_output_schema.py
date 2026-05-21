@@ -8,8 +8,8 @@ from google.adk.tools.set_model_response_tool import SetModelResponseTool
 from google.adk.utils.output_schema_utils import can_use_output_schema_with_tools
 
 from madamis.agent import root_agent as madamis_agent
-from madamis.config import get_gemini_model
-from madamis.schemas import Recipe
+from madamis.core.config import get_gemini_model
+from madamis.models.recipe import Recipe
 
 
 def test_madamis_agent_has_tools_only():

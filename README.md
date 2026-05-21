@@ -190,6 +190,15 @@ npm test
 ```
 madamis-ai/
 ├── backend/          # FastAPI（`madamis/`・`tests/`・`.env.example` → `.env`）
+│   └── madamis/      # Python パッケージ（機能別サブディレクトリ）
+│       ├── main.py   # uvicorn エントリ（`madamis.main:app`）
+│       ├── api/      # FastAPI app / routes / HTTP schemas
+│       ├── agent/    # ADK 本番エージェント（`support.py`）
+│       ├── core/     # config / logging
+│       ├── models/   # 共有 Pydantic（例: `recipe.py`）
+│       ├── providers/# ADK プロバイダ抽象
+│       ├── runtime/  # Runner / セッション組み立て
+│       └── tools/    # エージェント tool（例: `dice.py`）
 ├── frontend/         # Next.js Web UI
 ├── interface/        # Discord Bot（`madamis_interface/`・`tests/`・`.env.example` → `.env`）
 ├── terraform/        # GCP インフラ定義
@@ -197,6 +206,8 @@ madamis-ai/
 ├── .mise.toml
 └── compose.yaml
 ```
+
+詳細なレイアウト方針は [spec.md](spec.md) §7 を参照。
 
 ---
 

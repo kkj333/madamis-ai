@@ -19,8 +19,8 @@ import sys
 from google import genai
 from google.genai import types
 
-from madamis.config import ensure_llm_config, get_gemini_model, load_environment
-from madamis.schemas import Recipe
+from madamis.core.config import ensure_llm_config, get_gemini_model, load_environment
+from madamis.models.recipe import Recipe
 
 PROMPT = """
 Please extract the recipe from the following text.

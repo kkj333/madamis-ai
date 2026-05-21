@@ -1,24 +1,8 @@
-from abc import ABC, abstractmethod
 import hashlib
 
 from google.genai import types
 
-
-class MadamisSupportProvider(ABC):
-    """マダミスサポートの応答を取得するための抽象インターフェース"""
-
-    @abstractmethod
-    async def interpret(self, text: str, user_id: str) -> str:
-        """ユーザーの相談テキストに対する AI 応答を取得する。
-
-        Args:
-            text: ユーザーから送信された相談・質問
-            user_id: ユーザー識別用 ID
-
-        Returns:
-            AI からの返答メッセージ
-        """
-        pass
+from madamis.providers.base import MadamisSupportProvider
 
 
 class LocalAdkProvider(MadamisSupportProvider):
@@ -53,7 +37,7 @@ class LocalAdkProvider(MadamisSupportProvider):
         )
 
     async def _get_or_create_user_session(self, user_id: str):
-        session_id = _session_id_for_user(user_id)
+        session_id = session_id_for_user(user_id)
         session = await self.session_service.get_session(
             app_name=self.app_name,
             user_id=user_id,
@@ -79,6 +63,6 @@ class LocalAdkProvider(MadamisSupportProvider):
             raise
 
 
-def _session_id_for_user(user_id: str) -> str:
+def session_id_for_user(user_id: str) -> str:
     digest = hashlib.sha256(user_id.encode("utf-8")).hexdigest()[:32]
     return f"user_{digest}"

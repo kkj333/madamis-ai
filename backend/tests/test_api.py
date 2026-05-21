@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
-from madamis.app import create_app
-from madamis.config import DEFAULT_WEB_USER_ID
+from madamis.api.app import create_app
+from madamis.core.config import DEFAULT_WEB_USER_ID
 from madamis.main import app
 
 client = TestClient(app)

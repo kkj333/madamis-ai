@@ -13,7 +13,7 @@ DEFAULT_GEMINI_MODEL = "gemini-3-flash-preview"
 
 
 def load_environment() -> None:
-    backend_root = Path(__file__).resolve().parent.parent
+    backend_root = Path(__file__).resolve().parent.parent.parent
     load_dotenv(backend_root / ".env")
     os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", "1")
 
