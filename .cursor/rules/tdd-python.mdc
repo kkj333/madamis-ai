@@ -1,0 +1,12 @@
+---
+description: Test-first when changing Python backend or interface (pytest, Red–Green–Refactor)
+globs: backend/**/*.py,interface/**/*.py
+alwaysApply: false
+---
+
+# TDD
+
+- **新しい挙動**や**バグ修正**では、先に **失敗するテスト** を足し、そのあと実装する（Red → Green → 必要ならリファクタ）。
+- backend: **`cd backend && uv run pytest`**
+- interface: **`cd interface && uv run pytest`**
+- 正当化がない限り、**テストなしの本実装だけ**にしない。

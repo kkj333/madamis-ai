@@ -1,0 +1,8 @@
+# リポジトリ固有の追加検出パターン（rg 正規表現、1 行 1 つ）
+# 使い方:
+#   cp patterns.local.example patterns.local
+#   patterns.local を編集（gitignore 済み・コミットしない）
+#
+# 例（実 ID は patterns.local にだけ書く。スキル本文や scan.sh には書かない）:
+# my-gcp-project-id-stg
+# libsql://my-db-myorg\.turso\.io
