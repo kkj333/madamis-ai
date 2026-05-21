@@ -19,6 +19,7 @@ env:
   PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   PROJECT_NUMBER: ${{ vars.GCP_PROJECT_NUMBER }}
   REGION: asia-northeast1
+  VERTEX_LOCATION: global
   ARTIFACT_REPOSITORY: madamis-ai
   BACKEND_SERVICE: madamis-backend
   FRONTEND_SERVICE: madamis-frontend
@@ -75,10 +76,14 @@ jobs:
 
       - name: Deploy backend
         run: |
+          # Image-only updates leave stale env (e.g. GOOGLE_API_KEY after Vertex migration).
+          # Keep env aligned with terraform/main.tf backend Cloud Run template.
           gcloud run services update "${BACKEND_SERVICE}" \
             --project="${PROJECT_ID}" \
             --region="${REGION}" \
-            --image="${{ steps.images.outputs.backend_image }}"
+            --image="${{ steps.images.outputs.backend_image }}" \
+            --remove-env-vars=GOOGLE_API_KEY \
+            --update-env-vars="^|^GOOGLE_GENAI_USE_VERTEXAI=1|GOOGLE_CLOUD_PROJECT=${PROJECT_ID}|GOOGLE_CLOUD_LOCATION=${VERTEX_LOCATION}|ADK_SESSION_SERVICE=firestore|FIRESTORE_PROJECT_ID=${PROJECT_ID}|FIRESTORE_DATABASE_ID=(default)|ADK_FIRESTORE_ROOT_COLLECTION=adk-session"
 
       - name: Read backend URL
         id: backend

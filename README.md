@@ -166,7 +166,7 @@ npm test
 ## 🚀 GCP デプロイと CI
 
 `terraform/` には GCP 用の定義（Cloud Run、Compute Engine、Secret Manager、Artifact Registry など）があります。  
-**GitHub Actions による CD は現状未実装**です。本番では Docker ビルド・レジストリへのプッシュ・`terraform apply` を手動または別パイプラインで行う想定です。
+**GitHub Actions**: `main` 向け CI 成功後に CD（[`.github/workflows/cd.yml`](.github/workflows/cd.yml)）が Cloud Run へイメージと backend 環境変数をデプロイします。Terraform で IAM や新リソースを変えたときは **`terraform apply` も実行**してください（例: Vertex AI 権限 `roles/aiplatform.user`）。
 
 ### インフラ構成（Terraform 想定）
 
